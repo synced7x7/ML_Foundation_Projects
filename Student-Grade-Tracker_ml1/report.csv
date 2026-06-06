@@ -1,0 +1,22 @@
+ID,Name,Age,Overall Average,Grade,Top Subject,Weakest Subject,Total Scores
+STU-018,Quinn Thompson,21,95.06,A,Math,Chemistry,2
+STU-001,John Doe,20,92.5,A,Python,Python,1
+STU-009,Henry Garcia,22,89.14,B,Biology,Python,7
+STU-005,David Wilson,21,88.68,B,Math,Python,8
+STU-013,Leo Thomas,19,87.56,B,Python,Chemistry,5
+STU-021,Tina Lopez,20,87.55,B,Physics,History,3
+STU-017,Paul Martin,20,84.96,B,Chemistry,Biology,3
+STU-011,Jack Anderson,20,84.46,B,History,Python,4
+STU-004,Carol Davis,19,82.64,B,Physics,Chemistry,10
+STU-002,Alice Johnson,19,80.88,B,Math,Chemistry,8
+STU-010,Ivy Martinez,19,80.81,B,Python,Chemistry,6
+STU-012,Kate Taylor,21,80.31,B,Chemistry,Biology,7
+STU-003,Bob Smith,20,79.92,C,History,Physics,10
+STU-020,Samuel Rodriguez,19,79.56,C,Chemistry,Python,9
+STU-015,Noah White,22,79.17,C,Physics,Math,9
+STU-014,Mia Jackson,20,79.14,C,Chemistry,Physics,7
+STU-019,Rachel Garcia,20,78.86,C,Physics,Python,7
+STU-016,Olivia Harris,19,78.71,C,Python,Biology,9
+STU-007,Frank Miller,19,78.53,C,History,Math,7
+STU-006,Emma Brown,20,76.51,C,Python,Chemistry,6
+STU-008,Grace Lee,20,73.08,C,Chemistry,Python,7
