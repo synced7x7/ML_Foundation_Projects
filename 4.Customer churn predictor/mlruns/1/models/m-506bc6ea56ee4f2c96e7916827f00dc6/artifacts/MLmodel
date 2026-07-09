@@ -1,0 +1,28 @@
+artifact_path: file:c:/Users/Asus/Documents/JetbrainWorkspace/ML_Foundation_Projects/4.Customer
+  churn predictor/mlruns/1/models/m-506bc6ea56ee4f2c96e7916827f00dc6/artifacts
+flavors:
+  lightgbm:
+    code: null
+    data: model.skops
+    lgb_version: 4.6.0
+    model_class: lightgbm.sklearn.LGBMClassifier
+    serialization_format: skops
+    skops_trusted_types:
+    - lightgbm.basic.Booster
+    - lightgbm.sklearn.LGBMClassifier
+    - lightgbm.sklearn.LGBMRegressor
+    - collections.OrderedDict
+  python_function:
+    data: model.skops
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.lightgbm
+    python_version: 3.14.3
+mlflow_version: 3.14.0
+model_id: m-506bc6ea56ee4f2c96e7916827f00dc6
+model_size_bytes: 1442995
+model_uuid: m-506bc6ea56ee4f2c96e7916827f00dc6
+prompts: null
+run_id: 20c6dea3fcab48b1817373af6bc6a925
+utc_time_created: '2026-07-08 23:30:46.074860'

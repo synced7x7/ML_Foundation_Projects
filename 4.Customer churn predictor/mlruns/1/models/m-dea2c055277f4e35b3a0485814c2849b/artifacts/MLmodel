@@ -1,0 +1,24 @@
+artifact_path: file:c:/Users/Asus/Documents/JetbrainWorkspace/ML_Foundation_Projects/4.Customer
+  churn predictor/mlruns/1/models/m-dea2c055277f4e35b3a0485814c2849b/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.13.14
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.0
+    skops_trusted_types: null
+mlflow_version: 3.14.0
+model_id: m-dea2c055277f4e35b3a0485814c2849b
+model_size_bytes: 22378499
+model_uuid: m-dea2c055277f4e35b3a0485814c2849b
+prompts: null
+run_id: b0c0aeeed4e64d92a39a33570d85001e
+utc_time_created: '2026-07-09 00:20:18.531716'
