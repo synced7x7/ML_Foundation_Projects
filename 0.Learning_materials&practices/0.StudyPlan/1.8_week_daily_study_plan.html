@@ -1,0 +1,303 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.top-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem}
+.stat-label{font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.overall-bar{background:var(--color-border-tertiary);border-radius:3px;height:4px;margin-bottom:1.5rem;overflow:hidden}
+.overall-fill{height:100%;border-radius:3px;background:#534AB7;transition:width .4s}
+.week-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1rem}
+.wtab{font-size:12px;padding:5px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s;position:relative}
+.wtab:hover{border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.wtab.active{border-color:#534AB7;color:#534AB7;background:#EEEDFE}
+.wtab .wdot{width:6px;height:6px;border-radius:50%;background:#534AB7;position:absolute;top:3px;right:3px;display:none}
+.wtab.done .wdot{display:block}
+.week-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.week-header{padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.week-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.week-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.week-prog{display:flex;align-items:center;gap:8px;margin-top:10px}
+.week-bar{flex:1;height:3px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden}
+.week-fill{height:100%;border-radius:2px;background:#534AB7;transition:width .3s}
+.week-pct{font-size:11px;color:var(--color-text-tertiary);min-width:28px;text-align:right}
+.days{display:flex;flex-direction:column}
+.day-row{display:flex;align-items:flex-start;gap:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.day-row:last-child{border-bottom:none}
+.day-label{width:34px;padding:12px 0 12px 16px;font-size:11px;font-weight:500;color:var(--color-text-tertiary);flex-shrink:0;padding-top:14px}
+.day-tasks{flex:1;padding:10px 16px 10px 8px}
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:3px 0;cursor:pointer}
+.task-item:hover .task-text{color:var(--color-text-primary)}
+.task-cb{width:15px;height:15px;border:0.5px solid var(--color-border-secondary);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--color-background-primary)}
+.task-item.checked .task-cb{background:#534AB7;border-color:#534AB7}
+.task-item.checked .task-cb::after{content:'';display:block;width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.task-text{font-size:13px;color:var(--color-text-secondary);line-height:1.45;transition:color .15s}
+.task-item.checked .task-text{color:var(--color-text-tertiary);text-decoration:line-through;text-decoration-color:var(--color-border-secondary)}
+.day-sunday .day-label{color:#854F0B}
+.day-sunday .day-tasks{background:var(--color-background-secondary)}
+.resource-row{font-size:11px;color:var(--color-text-tertiary);padding:0 16px 10px 58px;font-style:italic}
+.ask-row{padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.ask-btn{font-size:12px;color:var(--color-text-info);background:none;border:0.5px solid var(--color-border-info,#378ADD);border-radius:var(--border-radius-md);padding:5px 10px;cursor:pointer}
+.ask-btn:hover{background:var(--color-background-info)}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">8-week Python and math daily study plan with progress tracking</h2>
+
+<div class="top-stats">
+  <div class="stat"><div class="stat-label">Days completed</div><div class="stat-value" id="s-done">0 / 56</div></div>
+  <div class="stat"><div class="stat-label">Tasks checked</div><div class="stat-value" id="s-tasks">0</div></div>
+  <div class="stat"><div class="stat-label">Current week</div><div class="stat-value" id="s-week">Week 1</div></div>
+</div>
+<div class="overall-bar"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+
+<div class="week-tabs" id="week-tabs"></div>
+<div id="week-view"></div>
+</div>
+
+<script>
+const plan = [
+  {
+    title:"Python core",
+    month:"Month 1 · Python & statistics",
+    ask:"Give me Python practice exercises for beginners with solutions",
+    days:[
+      {label:"Mon",tasks:["Variables, data types, strings and f-strings","Basic input/output and type casting","Practice: write 10 programs using string formatting"],resource:"python.org/tutorial — sections 1-3"},
+      {label:"Tue",tasks:["Lists, tuples, dictionaries and sets","Indexing, slicing, and iteration","Practice: build a simple phonebook with a dict"],resource:""},
+      {label:"Wed",tasks:["if/elif/else conditionals and logical operators","for loops, while loops, break and continue","List comprehensions — write 5 variations"],resource:""},
+      {label:"Thu",tasks:["Functions — def, return, docstrings","*args and **kwargs, default parameters","Practice: write a stats calculator function"],resource:""},
+      {label:"Fri",tasks:["OOP basics — classes and __init__","Instance methods, self, and attributes","Practice: build a Student class with grade tracking"],resource:""},
+      {label:"Sat",tasks:["File I/O — read, write, append","try/except error handling, custom exceptions","Modules — import, from, __name__ == '__main__'"],resource:""},
+      {label:"Sun",tasks:["Mini project: command-line grade tracker","Store student data in a dict, compute averages","Push code to GitHub with a README"],resource:"Project day — no new theory"},
+    ]
+  },
+  {
+    title:"Advanced Python + probability",
+    month:"Month 1 · Python & statistics",
+    ask:"Explain Bayes theorem with a Python simulation I can run",
+    days:[
+      {label:"Mon",tasks:["Generators and iterators — yield keyword","Advanced comprehensions: nested, conditional","Practice: infinite sequence generator"],resource:""},
+      {label:"Tue",tasks:["Lambda, map, filter, zip — functional Python","enumerate and sorted with key functions","Practice: rewrite 5 loops as functional expressions"],resource:""},
+      {label:"Wed",tasks:["Decorators — what they are and how to write one","Context managers — with statement and __enter__/__exit__","Practice: write a timer decorator for functions"],resource:""},
+      {label:"Thu",tasks:["Probability basics: sample spaces, events, P(A)","Addition and multiplication rules","Simulate coin flips and dice rolls in Python"],resource:"Khan Academy: Basic probability unit"},
+      {label:"Fri",tasks:["Conditional probability — P(A|B) formula","Bayes' theorem — intuition then formula","Simulate Monty Hall problem in Python (1000 trials)"],resource:"3Blue1Brown: Bayes theorem video"},
+      {label:"Sat",tasks:["Counting: permutations (nPr), combinations (nCr)","Python itertools — permutations and combinations","Practice: birthday problem simulation"],resource:""},
+      {label:"Sun",tasks:["Project: probability simulator","Simulate 5 classic problems, verify math answers","Plot results with matplotlib bar charts"],resource:"Project day — no new theory"},
+    ]
+  },
+  {
+    title:"Statistics",
+    month:"Month 1 · Python & statistics",
+    ask:"Explain the central limit theorem with a visual Python simulation",
+    days:[
+      {label:"Mon",tasks:["Descriptive stats: mean, median, mode, range","Variance and standard deviation — compute by hand first","Implement all from scratch in Python, then use numpy"],resource:""},
+      {label:"Tue",tasks:["Probability distributions: Uniform and Binomial","Plot PMF and CDF using matplotlib","Use scipy.stats to generate and analyze samples"],resource:"StatQuest: Binomial distribution video"},
+      {label:"Wed",tasks:["Normal (Gaussian) distribution — bell curve intuition","Z-scores and standardization","Central Limit Theorem — simulate with 10k samples from any distribution"],resource:"3Blue1Brown: Normal distribution video"},
+      {label:"Thu",tasks:["Hypothesis testing: null vs alternative hypothesis","P-values — what they actually mean","Type I and Type II errors"],resource:"StatQuest: P-values video"},
+      {label:"Fri",tasks:["T-test in scipy.stats — one-sample and two-sample","Chi-square test for categorical data","Practice: test if two coin sets are fair"],resource:""},
+      {label:"Sat",tasks:["Correlation coefficient — Pearson r, Spearman","Covariance and correlation matrix","Scatter plots and heatmaps with seaborn"],resource:""},
+      {label:"Sun",tasks:["EDA mini project on a real Kaggle dataset","Compute full descriptive stats, plot distributions","Write statistical observations in markdown cells"],resource:"Kaggle Datasets — pick one you find interesting"},
+    ]
+  },
+  {
+    title:"NumPy, Pandas & Matplotlib",
+    month:"Month 1 · Python & statistics",
+    ask:"Give me 10 Pandas exercises on data cleaning with solutions",
+    days:[
+      {label:"Mon",tasks:["NumPy arrays — creation, indexing, slicing","Array math — element-wise ops, broadcasting","Practice: implement matrix addition and dot product"],resource:"NumPy quickstart tutorial (numpy.org)"},
+      {label:"Tue",tasks:["NumPy linear algebra: np.linalg — dot, inv, eig","Reshaping, stacking, splitting arrays","Practice: solve a 3x3 system of linear equations"],resource:""},
+      {label:"Wed",tasks:["Pandas Series and DataFrame creation","Reading CSV, JSON — pd.read_csv(), head(), info()","Selecting columns, rows, and loc vs iloc"],resource:"Pandas getting started tutorials"},
+      {label:"Thu",tasks:["Data cleaning: isnull(), fillna(), dropna()","Duplicate removal, dtype conversion","String operations with .str accessor"],resource:""},
+      {label:"Fri",tasks:["GroupBy operations — split-apply-combine","Merge and join DataFrames (like SQL joins)","Pivot tables and crosstabs"],resource:""},
+      {label:"Sat",tasks:["Matplotlib: line, bar, histogram, scatter","Seaborn: pairplot, boxplot, heatmap","Customize plots — labels, titles, colors, subplots"],resource:"Seaborn gallery for inspiration"},
+      {label:"Sun",tasks:["Capstone EDA notebook — Month 1 project","Full analysis: load → clean → stats → visualize → insights","Publish to Kaggle or GitHub Pages"],resource:"Month 1 complete — push to GitHub with clean README"},
+    ]
+  },
+  {
+    title:"Linear algebra deepening",
+    month:"Month 2 · Math for ML & Scikit-learn",
+    ask:"Explain eigenvalues and eigenvectors visually — why do they matter for ML?",
+    days:[
+      {label:"Mon",tasks:["Vectors: magnitude, direction, dot product, angle","Vector norms (L1, L2) — implement then numpy","Cosine similarity — why it's used in NLP"],resource:"3Blue1Brown: Essence of Linear Algebra series (start here)"},
+      {label:"Tue",tasks:["Matrix multiplication — geometric meaning","Transpose and inverse — when does inverse exist?","Practice: implement matmul from scratch with loops"],resource:""},
+      {label:"Wed",tasks:["Linear transformations — what matrices do to space","Identity, rotation, scaling, shear matrices","Visualize 2D transformations with matplotlib"],resource:"3Blue1Brown: Linear transformations video"},
+      {label:"Thu",tasks:["Eigenvalues and eigenvectors — intuition first","np.linalg.eig() — compute and verify by hand for 2x2","Why eigendecomposition matters for PCA and ML"],resource:"StatQuest: PCA step by step video"},
+      {label:"Fri",tasks:["Singular Value Decomposition (SVD) — what it does","np.linalg.svd() — decompose an image matrix","Reconstruct image with k singular values (compression)"],resource:""},
+      {label:"Sat",tasks:["Systems of equations — Gaussian elimination","np.linalg.solve() for Ax = b","Rank, null space, over/underdetermined systems"],resource:""},
+      {label:"Sun",tasks:["Project: PCA from scratch using SVD","Center data → compute SVD → project onto top-k components","Compare your result vs sklearn PCA output"],resource:"Project day — solidifies the whole week"},
+    ]
+  },
+  {
+    title:"Calculus for ML",
+    month:"Month 2 · Math for ML & Scikit-learn",
+    ask:"Show me gradient descent working on a 2D loss surface with visualization code",
+    days:[
+      {label:"Mon",tasks:["Functions, limits and continuity — informal intuition","What a derivative measures geometrically","Power rule, sum rule — differentiate 10 functions by hand"],resource:"Khan Academy: Derivatives unit"},
+      {label:"Wed",tasks:["Chain rule — essential for backprop","Product rule, quotient rule","Practice: differentiate 5 composed functions"],resource:""},
+      {label:"Wed",tasks:["Partial derivatives — functions of multiple variables","Gradient vector — direction and magnitude","Visualize gradient as arrows on a contour plot"],resource:"3Blue1Brown: Gradient, divergence, curl video"},
+      {label:"Thu",tasks:["Gradient descent algorithm — derive the update rule","Implement gradient descent on f(x) = x² from scratch","Plot convergence — loss vs iterations"],resource:""},
+      {label:"Fri",tasks:["Learning rate effect — too high, too low, just right","Momentum and adaptive learning rates (concept)","Mini-batch vs full-batch — tradeoffs"],resource:""},
+      {label:"Sat",tasks:["Loss surfaces: convex vs non-convex","Saddle points, local minima — how optimizers escape","Implement and visualize gradient descent in 2D"],resource:""},
+      {label:"Sun",tasks:["Project: gradient descent visualizer","Animate a ball rolling down a custom 2D loss surface","Implement 3 learning rates and show the difference"],resource:"Best project of the month — make it look great"},
+    ]
+  },
+  {
+    title:"Scikit-learn & first models",
+    month:"Month 2 · Math for ML & Scikit-learn",
+    ask:"Explain the difference between precision, recall, F1 score and when to use each",
+    days:[
+      {label:"Mon",tasks:["Sklearn API: fit(), predict(), score()","Train/test split, random seeds, reproducibility","Feature scaling: StandardScaler and MinMaxScaler"],resource:"Sklearn user guide — getting started"},
+      {label:"Tue",tasks:["Linear regression: OLS theory and sklearn","Interpret coefficients — what do they mean?","R², MSE, MAE — compute and compare"],resource:"StatQuest: Linear Regression video"},
+      {label:"Wed",tasks:["Logistic regression: sigmoid function, decision boundary","Classification metrics: accuracy, precision, recall, F1","Confusion matrix — build and interpret one"],resource:"StatQuest: Logistic Regression video"},
+      {label:"Thu",tasks:["Decision trees: information gain, Gini impurity","Random forests: bagging, feature importance","Visualize a decision tree with sklearn + graphviz"],resource:""},
+      {label:"Fri",tasks:["Cross-validation: k-fold, stratified k-fold","GridSearchCV for hyperparameter tuning","ROC curve and AUC — interpret for a classifier"],resource:""},
+      {label:"Sat",tasks:["Sklearn Pipelines — chain preprocessing + model","Feature engineering: one-hot encoding, ordinal","ColumnTransformer for mixed-type data"],resource:""},
+      {label:"Sun",tasks:["End-to-end project: Titanic survival prediction","EDA → feature engineering → 3 models → pipeline → submission","Document everything in a Kaggle notebook"],resource:"Publish on Kaggle — your first public notebook"},
+    ]
+  },
+  {
+    title:"Portfolio integration & review",
+    month:"Month 2 · Math for ML & Scikit-learn",
+    ask:"Review my AI project and suggest how to improve it for my portfolio",
+    days:[
+      {label:"Mon",tasks:["Review your weakest topic from the past 7 weeks","Redo 3 exercises you struggled with","Fill any gaps in linear algebra or probability"],resource:""},
+      {label:"Tue",tasks:["Choose a real-world dataset you genuinely care about","Formulate a clear problem statement","Explore the data — shape, types, missing values, distributions"],resource:"Kaggle Datasets or UCI ML Repository"},
+      {label:"Wed",tasks:["Full exploratory data analysis with visualizations","Compute statistical summaries, check correlations","Write markdown explanations for every finding"],resource:""},
+      {label:"Thu",tasks:["Feature engineering: create, transform, select features","Train minimum 3 different models","Cross-validate all models and compare results in a table"],resource:""},
+      {label:"Fri",tasks:["Tune your best model with GridSearchCV","Interpret the final model — coefficients or feature importance","Write a clear conclusion section with business/real-world insight"],resource:""},
+      {label:"Sat",tasks:["Polish the Jupyter notebook — clean cells, clear outputs","Write a professional GitHub README with screenshots","Add requirements.txt and a usage section"],resource:""},
+      {label:"Sun",tasks:["Publish notebook on Kaggle, share on LinkedIn","Write a short blog post or Twitter thread about what you built","Plan Month 3 — you are now ready for deep learning"],resource:"Month 2 complete — you have 2 portfolio projects"},
+    ]
+  }
+];
+
+const totalTasks = plan.reduce((a,w)=>a+w.days.reduce((b,d)=>b+d.tasks.length,0),0);
+let state = {};
+
+async function loadState(){
+  try{
+    const r = await window.storage.get('study-plan-state');
+    if(r) state = JSON.parse(r.value);
+  }catch(e){}
+  render(0);
+}
+
+async function saveState(){
+  try{ await window.storage.set('study-plan-state', JSON.stringify(state)); }catch(e){}
+}
+
+function getKey(w,d,t){ return `${w}-${d}-${t}`; }
+
+function countChecked(){
+  return Object.values(state).filter(Boolean).length;
+}
+
+function countWeekChecked(wi){
+  let c=0, t=0;
+  plan[wi].days.forEach((day,di)=>day.tasks.forEach((_,ti)=>{t++;if(state[getKey(wi,di,ti)])c++;}));
+  return {c,t};
+}
+
+function updateStats(){
+  const checked = countChecked();
+  const daysDone = plan.reduce((a,w,wi)=>{
+    return a + w.days.filter((_,di)=>{
+      const tasks=plan[wi].days[di].tasks;
+      return tasks.every((_,ti)=>state[getKey(wi,di,ti)]);
+    }).length;
+  },0);
+  document.getElementById('s-done').textContent = daysDone + ' / 56';
+  document.getElementById('s-tasks').textContent = checked;
+  const pct = totalTasks>0?Math.round(checked/totalTasks*100):0;
+  document.getElementById('overall-fill').style.width = pct+'%';
+  const curWeek = plan.findIndex((w,wi)=>{
+    const {c,t}=countWeekChecked(wi); return c<t;
+  });
+  document.getElementById('s-week').textContent = 'Week '+(curWeek<0?8:curWeek+1);
+}
+
+let currentWeek = 0;
+
+function buildTabs(){
+  const cont = document.getElementById('week-tabs');
+  cont.innerHTML='';
+  plan.forEach((w,wi)=>{
+    const btn = document.createElement('button');
+    btn.className='wtab'+(wi===currentWeek?' active':'');
+    btn.innerHTML=`W${wi+1}<span class="wdot"></span>`;
+    btn.onclick=()=>{ currentWeek=wi; render(wi); };
+    cont.appendChild(btn);
+  });
+  updateTabDots();
+}
+
+function updateTabDots(){
+  document.querySelectorAll('.wtab').forEach((btn,wi)=>{
+    const {c,t}=countWeekChecked(wi);
+    btn.classList.toggle('done',c===t&&t>0);
+    btn.classList.toggle('active',wi===currentWeek);
+  });
+}
+
+function render(wi){
+  currentWeek=wi;
+  buildTabs();
+  const w=plan[wi];
+  const {c,t}=countWeekChecked(wi);
+  const pct=t>0?Math.round(c/t*100):0;
+
+  const isSunday=(di)=>plan[wi].days[di].label==='Sun';
+
+  let html=`<div class="week-card">
+    <div class="week-header">
+      <div class="week-title">Week ${wi+1}: ${w.title}</div>
+      <div class="week-sub">${w.month}</div>
+      <div class="week-prog">
+        <div class="week-bar"><div class="week-fill" style="width:${pct}%"></div></div>
+        <div class="week-pct">${pct}%</div>
+      </div>
+    </div>
+    <div class="days">`;
+
+  w.days.forEach((day,di)=>{
+    html+=`<div class="day-row${day.label==='Sun'?' day-sunday':''}">
+      <div class="day-label">${day.label}</div>
+      <div class="day-tasks">`;
+    day.tasks.forEach((task,ti)=>{
+      const key=getKey(wi,di,ti);
+      const checked=state[key]?'checked':'';
+      html+=`<div class="task-item ${checked}" data-key="${key}" onclick="toggle(this,'${key}')">
+        <div class="task-cb"></div>
+        <div class="task-text">${task}</div>
+      </div>`;
+    });
+    html+='</div></div>';
+    if(day.resource) html+=`<div class="resource-row">Resource: ${day.resource}</div>`;
+  });
+
+  html+=`</div>
+    <div class="ask-row">
+      <button class="ask-btn" onclick="sendPrompt('${w.ask}')">Ask Claude: ${w.ask} ↗</button>
+    </div>
+  </div>`;
+
+  document.getElementById('week-view').innerHTML=html;
+  updateStats();
+}
+
+function toggle(el, key){
+  state[key]=!state[key];
+  el.classList.toggle('checked',state[key]);
+  saveState();
+  const {c,t}=countWeekChecked(currentWeek);
+  const pct=t>0?Math.round(c/t*100):0;
+  const fill=document.querySelector('.week-fill');
+  if(fill) fill.style.width=pct+'%';
+  document.querySelector('.week-pct').textContent=pct+'%';
+  updateStats();
+  updateTabDots();
+}
+
+loadState();
+</script>

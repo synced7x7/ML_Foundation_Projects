@@ -1,0 +1,299 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1rem 0;font-family:var(--font-sans)}
+.top-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.75rem 1rem}
+.stat-label{font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.stat-value{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.overall-bar{background:var(--color-border-tertiary);border-radius:3px;height:4px;margin-bottom:1.5rem;overflow:hidden}
+.overall-fill{height:100%;border-radius:3px;background:#0F6E56;transition:width .4s}
+.week-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1rem}
+.wtab{font-size:12px;padding:5px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s;position:relative}
+.wtab:hover{border-color:var(--color-border-secondary);color:var(--color-text-primary)}
+.wtab.active{border-color:#0F6E56;color:#0F6E56;background:#E1F5EE}
+.wtab .wdot{width:6px;height:6px;border-radius:50%;background:#0F6E56;position:absolute;top:3px;right:3px;display:none}
+.wtab.done .wdot{display:block}
+.week-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.week-header{padding:14px 16px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.week-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.week-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.week-prog{display:flex;align-items:center;gap:8px;margin-top:10px}
+.week-bar{flex:1;height:3px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden}
+.week-fill{height:100%;border-radius:2px;background:#0F6E56;transition:width .3s}
+.week-pct{font-size:11px;color:var(--color-text-tertiary);min-width:28px;text-align:right}
+.days{display:flex;flex-direction:column}
+.day-row{display:flex;align-items:flex-start;gap:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.day-row:last-child{border-bottom:none}
+.day-label{width:34px;padding:12px 0 12px 16px;font-size:11px;font-weight:500;color:var(--color-text-tertiary);flex-shrink:0;padding-top:14px}
+.day-tasks{flex:1;padding:10px 16px 10px 8px}
+.task-item{display:flex;align-items:flex-start;gap:8px;padding:3px 0;cursor:pointer}
+.task-item:hover .task-text{color:var(--color-text-primary)}
+.task-cb{width:15px;height:15px;border:0.5px solid var(--color-border-secondary);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--color-background-primary)}
+.task-item.checked .task-cb{background:#0F6E56;border-color:#0F6E56}
+.task-item.checked .task-cb::after{content:'';display:block;width:8px;height:5px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.task-text{font-size:13px;color:var(--color-text-secondary);line-height:1.45;transition:color .15s}
+.task-item.checked .task-text{color:var(--color-text-tertiary);text-decoration:line-through;text-decoration-color:var(--color-border-secondary)}
+.day-sunday .day-label{color:#854F0B}
+.day-sunday .day-tasks{background:var(--color-background-secondary)}
+.resource-row{font-size:11px;color:var(--color-text-tertiary);padding:0 16px 10px 58px;font-style:italic}
+.ask-row{padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.ask-btn{font-size:12px;color:#0F6E56;background:none;border:0.5px solid #0F6E56;border-radius:var(--border-radius-md);padding:5px 10px;cursor:pointer}
+.ask-btn:hover{background:#E1F5EE}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">8-week core machine learning daily study plan — months 3 and 4 — with progress tracking</h2>
+
+<div class="top-stats">
+  <div class="stat"><div class="stat-label">Days completed</div><div class="stat-value" id="s-done">0 / 56</div></div>
+  <div class="stat"><div class="stat-label">Tasks checked</div><div class="stat-value" id="s-tasks">0</div></div>
+  <div class="stat"><div class="stat-label">Current week</div><div class="stat-value" id="s-week">Week 1</div></div>
+</div>
+<div class="overall-bar"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+
+<div class="week-tabs" id="week-tabs"></div>
+<div id="week-view"></div>
+</div>
+
+<script>
+const plan = [
+  {
+    title: "Linear & logistic regression",
+    month: "Month 3 · Supervised learning foundations",
+    ask: "Explain linear regression OLS derivation and how to interpret coefficients",
+    days: [
+      {label:"Mon", tasks:["Review the ML workflow: problem → data → model → evaluate → iterate","Install scikit-learn, pandas, numpy, matplotlib in one environment","Load the Boston/California housing dataset and explore it with .describe()"], resource:"Sklearn user guide — getting started"},
+      {label:"Tue", tasks:["Linear regression: ordinary least squares intuition — minimising SSE","Derive the normal equation by hand: θ = (XᵀX)⁻¹Xᵀy","Implement linear regression from scratch using only NumPy"], resource:"StatQuest: Linear Regression clearly explained (YouTube)"},
+      {label:"Wed", tasks:["Fit sklearn LinearRegression on housing data","Interpret coefficients — what does each number actually mean?","Compute R², MAE, MSE, RMSE — understand each metric"], resource:""},
+      {label:"Thu", tasks:["Polynomial features — when linear isn't enough","PolynomialFeatures + Pipeline in sklearn","Plot degree 1 vs 3 vs 10 fit — see overfitting emerge visually"], resource:""},
+      {label:"Fri", tasks:["Sigmoid function — why it maps any number to (0,1)","Logistic regression: log-loss vs MSE — why we switch","Fit LogisticRegression on the Titanic dataset"], resource:"StatQuest: Logistic Regression (YouTube)"},
+      {label:"Sat", tasks:["Confusion matrix: TP, TN, FP, FN — draw one by hand","Precision, recall, F1-score — compute all three from scratch","Plot ROC curve and compute AUC — interpret the result"], resource:"StatQuest: ROC and AUC clearly explained"},
+      {label:"Sun", tasks:["Project: house price predictor — end to end","EDA → feature selection → linear model → evaluation → residual plot","Push to GitHub with a README explaining your methodology"], resource:"Project day — no new theory"},
+    ]
+  },
+  {
+    title: "Decision trees & ensembles",
+    month: "Month 3 · Supervised learning",
+    ask: "Explain how random forests reduce variance compared to a single decision tree",
+    days: [
+      {label:"Mon", tasks:["Decision tree intuition — recursive binary splitting","Gini impurity vs entropy — compute both for a toy example","Visualise a tree with sklearn's plot_tree on Iris dataset"], resource:"StatQuest: Decision trees (YouTube)"},
+      {label:"Tue", tasks:["Tree hyperparameters: max_depth, min_samples_split, min_samples_leaf","Overfit a tree (no limits), then add constraints and watch test score rise","Plot train vs test accuracy as max_depth increases (1 to 20)"], resource:""},
+      {label:"Wed", tasks:["Bagging — why averaging noisy models reduces variance","RandomForestClassifier: n_estimators, max_features explained","Feature importances from a random forest — plot and interpret them"], resource:"StatQuest: Random Forests (YouTube)"},
+      {label:"Thu", tasks:["Boosting concept: models learn from previous errors","AdaBoostClassifier — sample weights visualised","GradientBoostingClassifier — loss surface and residuals"], resource:"StatQuest: Gradient Boost (YouTube)"},
+      {label:"Fri", tasks:["Install XGBoost and LightGBM","XGBClassifier: key params — n_estimators, learning_rate, max_depth, subsample","LightGBM: leaf-wise growth vs level-wise — why it's faster"], resource:"XGBoost documentation — getting started"},
+      {label:"Sat", tasks:["Early stopping in XGBoost with eval_set","Compare RF vs XGBoost vs LightGBM on the same dataset","Log all experiments with MLflow — track params and metrics"], resource:"MLflow quickstart tutorial (mlflow.org)"},
+      {label:"Sun", tasks:["Project: customer churn predictor","Telecom or bank churn dataset → EDA → 3 models → compare F1 scores","Add business insight: which features drive churn the most?"], resource:"Kaggle: Telco Customer Churn dataset"},
+    ]
+  },
+  {
+    title: "Model evaluation & validation",
+    month: "Month 3 · Evaluation & tuning",
+    ask: "Show me a complete example of GridSearchCV with cross-validation and explain every parameter",
+    days: [
+      {label:"Mon", tasks:["Train/test split: why random_state matters for reproducibility","Validation set vs test set — never touch the test set during tuning","Stratified split for imbalanced classes — why it matters"], resource:""},
+      {label:"Tue", tasks:["K-fold cross-validation — implement manually with a for loop","cross_val_score vs cross_validate — what extra info you get","Stratified K-fold for classification tasks"], resource:"Sklearn cross-validation user guide"},
+      {label:"Wed", tasks:["Bias-variance tradeoff — draw the U-shaped test error curve","High bias symptoms (underfitting) vs high variance (overfitting)","Learning curves: plot train and val error vs training set size"], resource:""},
+      {label:"Thu", tasks:["GridSearchCV: exhaustive search over a parameter grid","RandomizedSearchCV: when and why it's faster","Read the best_params_ and best_score_ correctly — avoid data leakage"], resource:""},
+      {label:"Fri", tasks:["Imbalanced classes: accuracy is misleading — use F1, AUC instead","class_weight='balanced' in sklearn — how it works","SMOTE oversampling: concept and imbalanced-learn implementation"], resource:"imbalanced-learn documentation"},
+      {label:"Sat", tasks:["Calibration curves — are your predicted probabilities reliable?","Precision-recall curve — better than ROC for imbalanced data","Cohen's kappa — an agreement metric beyond accuracy"], resource:""},
+      {label:"Sun", tasks:["Project: full evaluation pipeline on any classification dataset","GridSearchCV tuning → learning curve → confusion matrix → ROC + PR curves","Write a markdown summary of every metric and what it tells you"], resource:"Project day — make this a reference notebook"},
+    ]
+  },
+  {
+    title: "Feature engineering",
+    month: "Month 3 · Feature engineering",
+    ask: "Give me a feature engineering checklist for tabular ML datasets",
+    days: [
+      {label:"Mon", tasks:["Missing value strategies: mean/median/mode imputation — when to use each","Indicator variables for missingness — why it adds signal","SimpleImputer and KNNImputer in sklearn — compare on one dataset"], resource:""},
+      {label:"Tue", tasks:["StandardScaler vs MinMaxScaler vs RobustScaler — choose correctly","Why tree models don't need scaling but linear models do","Apply the right scaler inside a Pipeline to avoid data leakage"], resource:""},
+      {label:"Wed", tasks:["One-hot encoding for nominal categories","OrdinalEncoder for ordinal categories — map the order correctly","Target encoding: concept and risk of leakage — use with caution"], resource:""},
+      {label:"Thu", tasks:["Feature creation: ratios, interactions, log transforms","Date features: extract year, month, day of week, days since event","Text features: character count, word count, presence of keywords"], resource:""},
+      {label:"Fri", tasks:["Feature selection: filter methods — correlation and mutual info","Wrapper methods: RFE (Recursive Feature Elimination) in sklearn","Embedded methods: Lasso (L1) shrinks irrelevant coefficients to zero"], resource:""},
+      {label:"Sat", tasks:["ColumnTransformer: apply different transforms to different columns","End-to-end Pipeline: ColumnTransformer → model → GridSearchCV","Verify no data leakage: fit only on train, transform both train and test"], resource:"Sklearn Pipelines user guide"},
+      {label:"Sun", tasks:["Feature engineering sprint on the churn dataset from Week 2","Add 5 new engineered features, check if they improve the model","Document which features helped, which hurt, and why"], resource:"Project day — iterate on existing project"},
+    ]
+  },
+  {
+    title: "Unsupervised learning — clustering",
+    month: "Month 4 · Unsupervised learning",
+    ask: "Explain K-means clustering with the elbow method and silhouette score in Python",
+    days: [
+      {label:"Mon", tasks:["Unsupervised vs supervised: no labels, what are we finding?","K-means algorithm: initialise centroids → assign → move → repeat","Implement K-means from scratch with NumPy in under 30 lines"], resource:"StatQuest: K-means clustering (YouTube)"},
+      {label:"Tue", tasks:["Elbow method: plot inertia vs k — find the kink","Silhouette score: ranges from -1 to +1, what each value means","Apply both methods on the Mall Customer dataset to pick k"], resource:"Kaggle: Mall Customer Segmentation dataset"},
+      {label:"Wed", tasks:["K-means limitations: assumes spherical clusters, sensitive to scale","DBSCAN: density-based, finds arbitrary shapes, handles noise","Compare K-means vs DBSCAN on a crescent-shaped toy dataset"], resource:""},
+      {label:"Thu", tasks:["Hierarchical clustering: agglomerative bottom-up approach","Dendrograms: how to read them and cut at the right height","scipy.cluster.hierarchy — plot a full dendrogram"], resource:""},
+      {label:"Fri", tasks:["Gaussian Mixture Models (GMM): soft cluster assignments with probabilities","sklearn GaussianMixture — compare to K-means on same data","BIC and AIC scores to choose number of components in GMM"], resource:""},
+      {label:"Sat", tasks:["Visualising clusters with PCA (2D) and t-SNE (2D)","When to use t-SNE vs PCA for cluster visualisation","Colour the scatter by cluster label — make it presentation-ready"], resource:""},
+      {label:"Sun", tasks:["Project: customer segmentation dashboard","RFM feature engineering → scale → cluster → profile each segment","Write a business memo: what does each customer segment look like?"], resource:"Project day — this one goes in the portfolio"},
+    ]
+  },
+  {
+    title: "Dimensionality reduction & PCA",
+    month: "Month 4 · Unsupervised learning",
+    ask: "Explain PCA step by step — how do we choose the number of components?",
+    days: [
+      {label:"Mon", tasks:["The curse of dimensionality — why more features can hurt","Variance explained ratio — what fraction of info each component holds","PCA step by step: centre → covariance matrix → eigenvectors → project"], resource:"StatQuest: PCA step by step (YouTube)"},
+      {label:"Tue", tasks:["sklearn PCA: fit on train, transform train and test separately","Cumulative explained variance plot — choose n_components at 95%","Visualise first 2 PCs on MNIST or faces dataset — clusters appear!"], resource:""},
+      {label:"Wed", tasks:["t-SNE: non-linear, preserves local structure, NOT for downstream ML","UMAP: faster than t-SNE, better global structure, pip install umap-learn","Compare PCA vs t-SNE vs UMAP on the same high-dimensional dataset"], resource:""},
+      {label:"Thu", tasks:["SVD for image compression: reconstruct image with k components","Plot reconstruction quality vs number of singular values (10, 50, 100, full)","Implement truncated SVD from scratch — link back to Week 5 of Month 2"], resource:""},
+      {label:"Fri", tasks:["LDA (Linear Discriminant Analysis) — supervised dimensionality reduction","When to use PCA (unsupervised) vs LDA (supervised)","Apply LDA on a multi-class classification problem, visualise the separation"], resource:""},
+      {label:"Sat", tasks:["Feature extraction pipeline: PCA → classifier inside a Pipeline","GridSearch over n_components and classifier hyperparameters together","Evaluate: does PCA preprocessing improve or hurt your best classifier?"], resource:""},
+      {label:"Sun", tasks:["Project: digit recogniser with PCA preprocessing","MNIST 784 dims → PCA → logistic regression vs raw → compare accuracy & speed","Upload notebook to GitHub, note the compression ratio achieved"], resource:"Classic ML benchmark — great portfolio piece"},
+    ]
+  },
+  {
+    title: "MLOps & experiment tracking",
+    month: "Month 4 · Professional ML workflow",
+    ask: "Walk me through setting up MLflow to track ML experiments locally",
+    days: [
+      {label:"Mon", tasks:["Why experiment tracking matters: reproduce results months later","MLflow concepts: runs, experiments, params, metrics, artifacts","Log your first run: mlflow.start_run() → log_param → log_metric → log_model"], resource:"MLflow documentation — tracking quickstart"},
+      {label:"Tue", tasks:["MLflow UI: mlflow ui in terminal → open browser → explore runs","Compare multiple runs in the UI — find best hyperparameters visually","Register a model in the MLflow Model Registry"], resource:""},
+      {label:"Wed", tasks:["sklearn Pipelines deep dive: prevent leakage, enable easy serialisation","joblib.dump and joblib.load — save and load trained pipelines","Predict on new data from a loaded pipeline — simulate real deployment"], resource:""},
+      {label:"Thu", tasks:["Data versioning concept — why raw data should be frozen at training time","DVC intro: track data files with git-like commands (concept only)","Write a model card: describe the model, data, metrics, limitations"], resource:"DVC.org — getting started guide"},
+      {label:"Fri", tasks:["Cross-validation strategies for time-series: TimeSeriesSplit","Why random shuffle split leaks future information into the past","Apply TimeSeriesSplit on a stock or weather dataset"], resource:""},
+      {label:"Sat", tasks:["Build a complete reusable training script: train.py with argparse","Log all params and metrics automatically to MLflow inside the script","Run three experiments from the command line, compare in the UI"], resource:""},
+      {label:"Sun", tasks:["Refactor the churn project into a professional repo structure","src/ for code, notebooks/ for EDA, data/ for data, models/ for artefacts","Write a full README with setup instructions, results table, and next steps"], resource:"Study real ML repos on GitHub for structure inspiration"},
+    ]
+  },
+  {
+    title: "Kaggle competition & portfolio integration",
+    month: "Month 4 · Portfolio capstone",
+    ask: "Help me write a professional README for a machine learning portfolio project",
+    days: [
+      {label:"Mon", tasks:["Pick a Kaggle tabular competition (Titanic, House Prices, or Spaceship)","Read the problem description, data dictionary, and evaluation metric carefully","Download data, run initial EDA — understand distributions and missing values"], resource:"Kaggle.com — competitions tab"},
+      {label:"Tue", tasks:["Baseline model: simplest possible model that runs and scores","Submit to Kaggle — record your first leaderboard score","Read top public notebooks — note the techniques used, don't copy yet"], resource:""},
+      {label:"Wed", tasks:["Feature engineering sprint: add 5 domain-inspired features","Tune your best model with cross-validated GridSearchCV","Log every experiment in MLflow — no guessing what worked"], resource:""},
+      {label:"Thu", tasks:["Model stacking: combine predictions from 3 models as meta-features","Train a meta-learner (logistic regression) on the stack","Does stacking improve your CV score? Submit and check the leaderboard"], resource:""},
+      {label:"Fri", tasks:["Error analysis: look at the worst 20 predictions — why did the model fail?","Add features or collect logic specifically to fix the most common errors","Final submission: your best single model and your stacked model"], resource:""},
+      {label:"Sat", tasks:["Polish your competition notebook for public sharing on Kaggle","Write a clear explanation of every design choice — pretend you're teaching","Polish the churn and segmentation projects — clean cells, clear outputs, screenshots"], resource:""},
+      {label:"Sun", tasks:["Publish all 3 projects on GitHub with professional READMEs","Write a LinkedIn post summarising what you built in months 3-4","Plan month 5: you are now ready for deep learning and PyTorch"], resource:"Month 4 complete — 3 strong portfolio projects ready"},
+    ]
+  }
+];
+
+const totalTasks = plan.reduce((a,w)=>a+w.days.reduce((b,d)=>b+d.tasks.length,0),0);
+let state = {};
+
+async function loadState(){
+  try{
+    const r = await window.storage.get('ml-plan-state');
+    if(r) state = JSON.parse(r.value);
+  }catch(e){}
+  render(0);
+}
+
+async function saveState(){
+  try{ await window.storage.set('ml-plan-state', JSON.stringify(state)); }catch(e){}
+}
+
+function getKey(w,d,t){ return `${w}-${d}-${t}`; }
+
+function countChecked(){
+  return Object.values(state).filter(Boolean).length;
+}
+
+function countWeekChecked(wi){
+  let c=0, t=0;
+  plan[wi].days.forEach((day,di)=>day.tasks.forEach((_,ti)=>{t++;if(state[getKey(wi,di,ti)])c++;}));
+  return {c,t};
+}
+
+function updateStats(){
+  const checked = countChecked();
+  const daysDone = plan.reduce((a,w,wi)=>{
+    return a + w.days.filter((_,di)=>{
+      const tasks=plan[wi].days[di].tasks;
+      return tasks.every((_,ti)=>state[getKey(wi,di,ti)]);
+    }).length;
+  },0);
+  document.getElementById('s-done').textContent = daysDone + ' / 56';
+  document.getElementById('s-tasks').textContent = checked;
+  const curWeek = plan.findIndex((w,wi)=>{const {c,t}=countWeekChecked(wi);return c<t;});
+  document.getElementById('s-week').textContent = 'Week '+(curWeek<0?8:curWeek+1);
+  const pct = totalTasks>0?Math.round(checked/totalTasks*100):0;
+  document.getElementById('overall-fill').style.width = pct+'%';
+}
+
+let currentWeek = 0;
+
+function buildTabs(){
+  const cont = document.getElementById('week-tabs');
+  cont.innerHTML='';
+  plan.forEach((w,wi)=>{
+    const btn = document.createElement('button');
+    btn.className='wtab'+(wi===currentWeek?' active':'');
+    btn.innerHTML=`W${wi+1}<span class="wdot"></span>`;
+    btn.onclick=()=>{ currentWeek=wi; render(wi); };
+    cont.appendChild(btn);
+  });
+  updateTabDots();
+}
+
+function updateTabDots(){
+  document.querySelectorAll('.wtab').forEach((btn,wi)=>{
+    const {c,t}=countWeekChecked(wi);
+    btn.classList.toggle('done',c===t&&t>0);
+    btn.classList.toggle('active',wi===currentWeek);
+  });
+}
+
+function render(wi){
+  currentWeek=wi;
+  buildTabs();
+  const w=plan[wi];
+  const {c,t}=countWeekChecked(wi);
+  const pct=t>0?Math.round(c/t*100):0;
+
+  let html=`<div class="week-card">
+    <div class="week-header">
+      <div class="week-title">Week ${wi+1}: ${w.title}</div>
+      <div class="week-sub">${w.month}</div>
+      <div class="week-prog">
+        <div class="week-bar"><div class="week-fill" style="width:${pct}%"></div></div>
+        <div class="week-pct">${pct}%</div>
+      </div>
+    </div>
+    <div class="days">`;
+
+  w.days.forEach((day,di)=>{
+    html+=`<div class="day-row${day.label==='Sun'?' day-sunday':''}">
+      <div class="day-label">${day.label}</div>
+      <div class="day-tasks">`;
+    day.tasks.forEach((task,ti)=>{
+      const key=getKey(wi,di,ti);
+      const checked=state[key]?'checked':'';
+      html+=`<div class="task-item ${checked}" data-key="${key}" onclick="toggle(this,'${key}')">
+        <div class="task-cb"></div>
+        <div class="task-text">${task}</div>
+      </div>`;
+    });
+    html+='</div></div>';
+    if(day.resource) html+=`<div class="resource-row">Resource: ${day.resource}</div>`;
+  });
+
+  html+=`</div>
+    <div class="ask-row">
+      <button class="ask-btn" onclick="sendPrompt('${w.ask}')">Ask Claude: ${w.ask} ↗</button>
+    </div>
+  </div>`;
+
+  document.getElementById('week-view').innerHTML=html;
+  updateStats();
+}
+
+function toggle(el, key){
+  state[key]=!state[key];
+  el.classList.toggle('checked',state[key]);
+  saveState();
+  const {c,t}=countWeekChecked(currentWeek);
+  const pct=t>0?Math.round(c/t*100):0;
+  const fill=document.querySelector('.week-fill');
+  if(fill) fill.style.width=pct+'%';
+  document.querySelector('.week-pct').textContent=pct+'%';
+  updateStats();
+  updateTabDots();
+}
+
+loadState();
+</script>

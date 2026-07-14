@@ -1,0 +1,253 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.roadmap { padding: 1.5rem 0; }
+.header { margin-bottom: 1.5rem; }
+.header h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.progress-bar { display: flex; gap: 4px; margin: 1rem 0 1.5rem; }
+.pb-seg { height: 5px; flex: 1; border-radius: 3px; background: var(--color-border-tertiary); transition: background 0.4s; }
+.pb-seg.active { background: #534AB7; }
+.phases { display: flex; flex-direction: column; gap: 10px; }
+.phase-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; transition: border-color 0.2s; cursor: pointer; }
+.phase-card:hover { border-color: var(--color-border-secondary); }
+.phase-card.open { border-color: var(--color-border-primary); }
+.phase-header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--color-background-primary); }
+.phase-badge { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.phase-meta { flex: 1; }
+.phase-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.phase-month { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.phase-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+.chevron { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.25s; flex-shrink: 0; }
+.phase-card.open .chevron { transform: rotate(180deg); }
+.phase-body { display: none; border-top: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+.phase-card.open .phase-body { display: block; }
+.body-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.body-col { padding: 14px 16px; }
+.body-col:first-child { border-right: 0.5px solid var(--color-border-tertiary); }
+.col-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.item { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+.item-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.item-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+.item-text strong { color: var(--color-text-primary); font-weight: 500; }
+.projects-section { padding: 12px 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+.projects-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.project-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+.project-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+.project-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; }
+.ask-btn { display: inline-flex; align-items: center; gap: 4px; margin-top: 12px; font-size: 12px; color: var(--color-text-info); background: none; border: 0.5px solid var(--color-border-info, #378ADD); border-radius: var(--border-radius-md); padding: 5px 10px; cursor: pointer; transition: background 0.15s; }
+.ask-btn:hover { background: var(--color-background-info); }
+.tip-bar { margin-top: 1.5rem; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px 16px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.tip-bar strong { color: var(--color-text-primary); font-weight: 500; }
+@media (max-width: 480px) { .body-grid { grid-template-columns: 1fr; } .body-col:first-child { border-right: none; border-bottom: 0.5px solid var(--color-border-tertiary); } }
+</style>
+
+<div class="roadmap">
+  <div class="header">
+    <h2>AI Engineer Roadmap — 12 months</h2>
+    <p>Click any phase to expand the curriculum, skills, and portfolio projects.</p>
+  </div>
+  <div class="progress-bar" id="prog"></div>
+  <div class="phases" id="phases"></div>
+  <div class="tip-bar">
+    <strong>Golden rule:</strong> For every concept you study, build something with it before moving on. Projects matter more than certificates — your GitHub is your resume.
+  </div>
+</div>
+
+<script>
+const phases = [
+  {
+    title: "Python & Math foundations",
+    months: "Months 1 – 2",
+    color: { bg: "#EEEDFE", text: "#3C3489", dot: "#534AB7" },
+    skills: [
+      { name: "Python for data science", desc: "NumPy, Pandas, Matplotlib, Seaborn" },
+      { name: "Probability & statistics", desc: "Distributions, Bayes, hypothesis testing" },
+      { name: "Linear algebra deepening", desc: "Eigenvalues, SVD, matrix calculus" },
+      { name: "Calculus basics", desc: "Derivatives, chain rule, gradient intuition" },
+    ],
+    tools: [
+      { name: "Jupyter Notebook", desc: "Interactive coding environment" },
+      { name: "Scikit-learn", desc: "Your first ML library" },
+      { name: "Google Colab", desc: "Free GPU in the browser" },
+    ],
+    projects: [
+      { name: "EDA notebook", desc: "Deep analysis of a Kaggle dataset" },
+      { name: "House price predictor", desc: "Linear regression from scratch + sklearn" },
+      { name: "Iris classifier", desc: "KNN, SVM, decision tree comparison" },
+    ],
+    ask: "Give me a 2-month Python and math study plan with daily goals"
+  },
+  {
+    title: "Core machine learning",
+    months: "Months 3 – 4",
+    color: { bg: "#E1F5EE", text: "#085041", dot: "#0F6E56" },
+    skills: [
+      { name: "Supervised learning", desc: "Regression, classification, trees, ensembles" },
+      { name: "Unsupervised learning", desc: "K-means, PCA, dimensionality reduction" },
+      { name: "Model evaluation", desc: "Cross-validation, overfitting, bias-variance" },
+      { name: "Feature engineering", desc: "Encoding, scaling, selection techniques" },
+    ],
+    tools: [
+      { name: "Scikit-learn advanced", desc: "Pipelines, GridSearchCV, ensembles" },
+      { name: "XGBoost / LightGBM", desc: "Industry-grade gradient boosting" },
+      { name: "MLflow", desc: "Track experiments like a professional" },
+    ],
+    projects: [
+      { name: "Churn predictor", desc: "Full ML pipeline with business insight" },
+      { name: "Customer segmenter", desc: "Clustering + PCA visualization" },
+      { name: "Kaggle competition", desc: "Submit to a beginner competition, top 40%" },
+    ],
+    ask: "Explain overfitting, bias-variance tradeoff and how to fix them with examples"
+  },
+  {
+    title: "Deep learning & neural nets",
+    months: "Months 5 – 6",
+    color: { bg: "#FAECE7", text: "#4A1B0C", dot: "#993C1D" },
+    skills: [
+      { name: "Neural network fundamentals", desc: "Feedforward, backprop, activation functions" },
+      { name: "CNNs", desc: "Convolutions, pooling, image classification" },
+      { name: "RNNs / LSTMs", desc: "Sequence modeling, time series" },
+      { name: "PyTorch core", desc: "Tensors, autograd, training loops" },
+    ],
+    tools: [
+      { name: "PyTorch", desc: "Industry-standard deep learning framework" },
+      { name: "Weights & Biases", desc: "Experiment tracking with beautiful dashboards" },
+      { name: "torchvision / torchaudio", desc: "Pre-built datasets and transforms" },
+    ],
+    projects: [
+      { name: "Image classifier CNN", desc: "CIFAR-10 or custom scraped dataset" },
+      { name: "Sentiment analyzer", desc: "LSTM trained on movie or product reviews" },
+      { name: "Digit generator", desc: "Simple GAN on MNIST" },
+    ],
+    ask: "Explain backpropagation visually and how PyTorch autograd works"
+  },
+  {
+    title: "Transformers & LLMs",
+    months: "Months 7 – 8",
+    color: { bg: "#E6F1FB", text: "#042C53", dot: "#185FA5" },
+    skills: [
+      { name: "Attention mechanism", desc: "Self-attention, multi-head, positional encoding" },
+      { name: "Transformer architecture", desc: "Encoder, decoder, BERT vs GPT families" },
+      { name: "Fine-tuning LLMs", desc: "Full fine-tune, LoRA, PEFT techniques" },
+      { name: "Prompt engineering", desc: "Zero-shot, few-shot, chain-of-thought" },
+    ],
+    tools: [
+      { name: "Hugging Face Transformers", desc: "Access 100k+ pretrained models" },
+      { name: "LangChain", desc: "Build LLM-powered applications" },
+      { name: "FAISS / ChromaDB", desc: "Vector databases for semantic search" },
+    ],
+    projects: [
+      { name: "RAG chatbot", desc: "Q&A over your own PDFs or docs" },
+      { name: "Fine-tuned model", desc: "Domain-specific model on Hugging Face Hub" },
+      { name: "AI writing assistant", desc: "Tone rewriter with custom prompt system" },
+    ],
+    ask: "Explain the transformer attention mechanism with a visual walkthrough"
+  },
+  {
+    title: "AI engineering & deployment",
+    months: "Months 9 – 10",
+    color: { bg: "#FAEEDA", text: "#412402", dot: "#854F0B" },
+    skills: [
+      { name: "API design", desc: "FastAPI, REST, streaming responses" },
+      { name: "Containerization", desc: "Docker, docker-compose, environment isolation" },
+      { name: "MLOps basics", desc: "CI/CD for models, monitoring, data pipelines" },
+      { name: "Cloud deployment", desc: "AWS/GCP basics, Hugging Face Spaces, Railway" },
+    ],
+    tools: [
+      { name: "FastAPI", desc: "Build production-grade model APIs fast" },
+      { name: "Docker", desc: "Package your apps for anywhere deployment" },
+      { name: "Streamlit / Gradio", desc: "Ship demos in hours, not days" },
+    ],
+    projects: [
+      { name: "Full-stack AI app", desc: "Frontend + FastAPI backend + deployed model" },
+      { name: "Model API service", desc: "Dockerized inference endpoint on cloud" },
+      { name: "Monitoring dashboard", desc: "Track model drift and usage in production" },
+    ],
+    ask: "Walk me through deploying a PyTorch model as a REST API with FastAPI and Docker"
+  },
+  {
+    title: "Portfolio & capstone",
+    months: "Months 11 – 12",
+    color: { bg: "#EAF3DE", text: "#173404", dot: "#3B6D11" },
+    skills: [
+      { name: "System design for AI", desc: "Architecture interviews, scalability thinking" },
+      { name: "Open source contribution", desc: "1-2 meaningful PRs to known repos" },
+      { name: "Technical writing", desc: "Blog posts explaining your projects clearly" },
+      { name: "Interview prep", desc: "ML concepts, coding, system design rounds" },
+    ],
+    tools: [
+      { name: "GitHub", desc: "Polished READMEs, pinned repos, contributions" },
+      { name: "LinkedIn / portfolio site", desc: "Your public-facing professional identity" },
+      { name: "LeetCode / StratasScratch", desc: "ML coding and SQL interview questions" },
+    ],
+    projects: [
+      { name: "Capstone AI product", desc: "End-to-end app solving a real problem" },
+      { name: "Technical blog series", desc: "3-5 posts explaining your learning" },
+      { name: "Research replication", desc: "Reproduce a recent ML paper from scratch" },
+    ],
+    ask: "Help me plan a capstone AI project that would impress hiring managers"
+  }
+];
+
+const prog = document.getElementById('prog');
+const container = document.getElementById('phases');
+
+phases.forEach((p, i) => {
+  const seg = document.createElement('div');
+  seg.className = 'pb-seg';
+  prog.appendChild(seg);
+
+  const card = document.createElement('div');
+  card.className = 'phase-card';
+  card.innerHTML = `
+    <div class="phase-header">
+      <div class="phase-badge" style="background:${p.color.bg};color:${p.color.text}">${i+1}</div>
+      <div class="phase-meta">
+        <div class="phase-title">${p.title}</div>
+        <div class="phase-month">${p.months}</div>
+      </div>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="phase-body">
+      <div class="body-grid">
+        <div class="body-col">
+          <div class="col-label">What to learn</div>
+          ${p.skills.map(s => `
+            <div class="item">
+              <div class="item-dot" style="background:${p.color.dot}"></div>
+              <div class="item-text"><strong>${s.name}</strong> — ${s.desc}</div>
+            </div>`).join('')}
+        </div>
+        <div class="body-col">
+          <div class="col-label">Tools to master</div>
+          ${p.tools.map(t => `
+            <div class="item">
+              <div class="item-dot" style="background:${p.color.dot}"></div>
+              <div class="item-text"><strong>${t.name}</strong> — ${t.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="projects-section">
+        <div class="projects-label">Portfolio projects</div>
+        <div class="projects-grid">
+          ${p.projects.map(pr => `
+            <div class="project-card">
+              <div class="project-name">${pr.name}</div>
+              <div class="project-desc">${pr.desc}</div>
+            </div>`).join('')}
+        </div>
+        <button class="ask-btn" onclick="sendPrompt('${p.ask}')">Ask Claude about this phase ↗</button>
+      </div>
+    </div>`;
+
+  card.querySelector('.phase-header').addEventListener('click', () => {
+    const isOpen = card.classList.toggle('open');
+    prog.querySelectorAll('.pb-seg')[i].classList.toggle('active', isOpen);
+  });
+  container.appendChild(card);
+});
+</script>
